@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+    <title></title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+        body{
+           /* height: 2000px;*/
+        }
+        #app{
+            position: relative;
+        }
+        ul{
+            list-style: none;
+        }
+        /*---------------上面是公共的样式---------------------------*/
+        #myheader{
+            width:100% ;
+            height: 50px;
+            background-color: grey;
+            font-size: 24px;
+            text-align: center;
+            line-height: 50px;
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            z-index: 10;
+        }
+        #myheader>button:nth-of-type(1){
+            height: 100%;
+            padding: 5px 20px 5px 20px;
+            float: left;
+            font-size: 24px;
+        }
+        #myheader>button:nth-of-type(2){
+             height: 100%;
+             padding: 5px 20px 5px 20px;
+             float: right;
+             font-size: 24px;
+         }
+        /*---------------上面是头部组件的样式---------------------------*/
+        #mylist{
+            width: 100%;
+            position: absolute;
+            top: 50px;
+            left: 0px;
+        }
+        /*每一组索引的样式*/
+        .indexChar{
+            height: 50px;
+            line-height: 50px;
+            width: 100%;
+            background-color: #cccccc;
+            font-size: 20px;
+            text-indent: 10px;
+            border-bottom: 1px solid sienna;
+        }
+        /*每一组联系人的样式*/
+        .indexChar+ul>li{
+            height: 80px;
+            width: 100%;
+            line-height: 80px;
+            background-color: white;
+            font-size: 20px;
+            text-indent: 10px;
+            border-bottom: 1px solid darkgreen;
+        }
+        .divHead{
+            width: 50px;
+            height: 50px;
+            border-radius:50%;
+            border: 5px solid gray;
+
+            margin: 10px;
+            float: left;
+        }
+        .male{
+            background: url("./image/male1.png") 0 0 no-repeat;
+            background-size: contain;
+        }
+        .female{
+            background: url("./image/female1.png") 0 0 no-repeat;
+            background-size: contain;
+        }
+        .allChars{
+            width: 40px;
+            /*background-color: darkkhaki;*/
+            position: fixed;
+            right: 0px;
+            top: 0px;
+            font-size: 24px;
+        }
+        /*----------------上面是列表的样式------------------------------*/
+
+        #mymsgbox{
+            width: 100%;
+            height: 2000px;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 20;
+        }
+        #content{
+            width: 80%;
+            height: 400px;
+            background-color: white;
+            border-radius: 10px;
+            margin: 80px auto;
+
+        }
+        #content>div:nth-of-type(1){
+            height: 15%;
+            line-height: 62px;
+            width: 100%;
+            border: 1px solid gray;
+            text-align: center;
+            font-size:28px ;
+        }
+        #content>div:nth-of-type(2){
+            height: 70%;
+            line-height: 62px;
+            width: 100%;
+            border: 1px solid gray;
+            text-align: center;
+            font-size:20px ;
+        }
+        #content>div:nth-of-type(3){
+            line-height: 52px;
+            height: 15%;
+            width: 100%;
+            border: 1px solid gray;
+            text-align: center;
+            font-size:20px ;
+        }
+        #content>div button{
+            font-size:20px ;
+            padding: 5px 25px;
+        }
+        .msghead{
+            height: 80px;
+            width: 80px;
+            border-radius:50%;
+            border: 5px solid gray;
+            margin: 10px auto;
+            animation:rotHead 5s linear infinite;
+        }
+        @keyframes rotHead {
+            0%{
+                transform: rotate(0deg);
+            }
+            100%{
+                transform: rotate(360deg);
+            }
+        }
+        /*----------------上面是消息框的样式------------------------------*/
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <myheader :data-vue="dataVue"></myheader>
+    <mylist :persons="persons"></mylist>
+    <mymsgbox></mymsgbox>
+</div>
+
+<template id="myheader-tem">
+    <div id="myheader">
+        <button @click="backClick">返回</button>
+        {{dataVue.titleName}}
+        <button @click="homeClick">主页</button>
+    </div>
+</template>
+
+<template id="mylist-tem">
+    <div id="mylist">
+        <div>
+            <ul>
+                <li v-for="item in persons">
+                    <div class="indexChar">{{item.index}}</div>
+                    <ul>
+                        <li @click="nameClick(it)" v-for="it in item.group1">
+                            <div :class="it.sex == 'male'?'divHead male':'divHead female'"></div>
+                            <div>{{it.name}}</div>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="allChars" ref="allChars">
+            <ul>
+                <li v-for="item in allIndex" @click="clickIdx(item)">{{item}}</li>
+            </ul>
+        </div>
+    </div>
+</template>
+
+<template id="mymsgbox-tem">
+    <div id="mymsgbox" style="display: none" ref="mymsgbox">
+        <div id="content">
+            <div>通话</div>
+            <div>
+                <div :class="sex=='male'?'msghead male':'msghead female'"></div>
+                <div>
+                    姓名:{{name}} <br/>
+                    电话:{{phone}} <br/>
+                    性别:{{sex}}
+                </div>
+            </div>
+            <div>
+                <button @click="callClick">呼叫</button>
+                <button @click="cancelClick">取消</button>
+            </div>
+        </div>
+    </div>
+</template>
+<script type="text/javascript">
+    //web传过来的json数据
+    var dataOut = {
+        titleName:"通讯录",
+    }
+    var persons = [
+        {
+            index:"A",
+            group1:[
+                {name:"Afongyauching1",phone:"13580877188",sex:"male"},
+                {name:"A方耀正2",phone:"13680877188",sex:"female"},
+                {name:"A方式3",phone:"13780877188",sex:"male"},
+            ]
+        },
+        {
+            index:"B",
+            group1:[
+                {name:"B刘德华1",phone:"135808677188",sex:"male"},
+                {name:"B郭富城2",phone:"13610877188",sex:"female"},
+                {name:"B黎明3",phone:"13720877188",sex:"male"},
+            ]
+        },
+        {
+            index:"C",
+            group1:[
+                {name:"C清华校长1",phone:"13530877188",sex:"male"},
+                {name:"C哈佛校长2",phone:"13680877188",sex:"female"},
+                {name:"C斯坦福校长3",phone:"137850876188",sex:"male"},
+            ]
+        },
+        {
+            index:"D",
+            group1:[
+                {name:"D科比1",phone:"13530877488",sex:"male"},
+                {name:"D乔丹2",phone:"13680872188",sex:"female"},
+                {name:"D艾弗森3",phone:"137854876188",sex:"female"},
+            ]
+        },
+    ]
+    //非父子组件传递数据需要空实例
+    var emptyvue = new Vue();
+    //编写一个JS组件 可以不要空实例
+
+    var app = new Vue({
+        el: "#app",
+        data:{
+              dataVue:dataOut,
+              persons:persons
+        },
+        components:{
+            myheader:{
+                template:"#myheader-tem",
+                props:["dataVue"],
+                methods:{
+                    backClick: function (ev) {
+                        alert("返回按钮被点击!");
+
+                    },
+                    homeClick: function (ev) {
+                        alert("主页按钮被点击!");
+                    }
+                }
+            },
+            mylist:{
+                template:"#mylist-tem",
+                props:{
+                    persons:{
+                        type:Array,
+                        default:[]
+                    }
+                },
+                computed:{
+                    allIndex: function () {
+                        var list = [];
+                        for(var i = 0;i<this.persons.length;i++){
+                            list.push(this.persons[i].index);
+                        }
+                        return list;
+                    }
+                },
+                methods:{
+                    clickIdx: function (item) {
+                        var divs = document.getElementsByClassName("indexChar");
+                        for(var i = 0;i<divs.length;i++)
+                        {
+                            if(divs[i].innerText == item){//找到这个元素的内容
+                                var topvalue =  divs[i].offsetTop;
+                                //兼容浏览器 两种写法 索引滚动条跳转
+                                document.body.scrollTop = topvalue;
+                                if(document.body.scrollTop == 0){
+                                    document.documentElement.scrollTop = topvalue;
+                                }
+                                break;
+                            }
+                        }
+                    },
+                    nameClick: function (it) {
+
+                        emptyvue.$emit("showMsg",it);
+                    }
+                },
+                mounted: function () {
+                    var winHeight = window.innerHeight;
+                    var divHeight = this.$refs.allChars.offsetHeight;
+                    var half = (winHeight - 50 - divHeight)/2;
+                    this.$refs.allChars.style.marginTop = (half + 50) +'px';
+                }
+            },
+            mymsgbox:{
+                template:"#mymsgbox-tem",
+
+                //初始化数据,从mylist那里准备接受数据
+                data: function () {
+                    return{
+                        name:"姓名",
+                        phone:"号码",
+                        sex:"male"
+                    }
+                },
+                mounted: function () {
+                    emptyvue.$on("showMsg", function (it) {
+                        this.name = it.name;
+                        this.phone = it.phone;
+                        this.sex = it.sex;
+                        this.$refs.mymsgbox.style.display = "block";
+                    }.bind(this))
+                },
+                methods:{
+                    callClick: function (ev) {
+                        alert(
+                            "打电话给"+this.name+
+                            "\r号码:"+this.phone
+                        );
+                    },
+                    cancelClick: function (ev) {
+                        this.$refs.mymsgbox.style.display = "none";
+                    }
+                }
+            }
+        }
+    })
+</script>
+</body>
+</html>
